@@ -8,11 +8,11 @@ import java.net.*;
  * <port>
  */
 
-public class MessageHello {
+public class HelloMessage {
 	private final String ip;
 	private final int port;
 
-	public MessageHello(String ip, int port) {
+	public HelloMessage(String ip, int port) {
 		validate(ip, port);
 		this.ip = ip;
 		this.port = port;
@@ -36,11 +36,11 @@ public class MessageHello {
 	}
 
 	/**
-	 * Parse un message HELLO (trois lignes) et retourne un MessageHello.
+	 * Parse un message HELLO (trois lignes) et retourne un HelloMessage.
 	 * Lance IllegalArgumentException si le message est mal formé.
 	 */
 
-	public static MessageHello parse(String message) {
+	public static HelloMessage parse(String message) {
 		if (message == null) {
 			throw new IllegalArgumentException("Message nul");
 		}
@@ -63,7 +63,7 @@ public class MessageHello {
 			throw new IllegalArgumentException("Port non-numérique: " + portLine, e);
 		}
 
-		return new MessageHello(ipLine, port);
+		return new HelloMessage(ipLine, port);
 	}
 
 	/*
@@ -84,7 +84,7 @@ public class MessageHello {
 
 	@Override
 	public String toString() {
-		return "MessageHello[ip=" + ip + ", port=" + port + "]";
+		return "HelloMessage[ip=" + ip + ", port=" + port + "]";
 	}
 
     // Méthode de test
@@ -93,7 +93,7 @@ public class MessageHello {
 		String sample = "HELLO\n127.0.0.1\n4040\n";
 		System.out.println("Sample message:\n" + sample);
 		try {
-			MessageHello m = MessageHello.parse(sample);
+			HelloMessage m = HelloMessage.parse(sample);
 			System.out.println("Parsed: " + m);
 			System.out.println("Serialized:\n" + m.serialize());
 		} catch (IllegalArgumentException e) {

@@ -8,10 +8,10 @@ GUESS
 - Une proposition valide peut modifier l'état du jeu 
 */
 
-public class MessageGuess {
+public class GuessMessage {
     private final char letter;
 
-    public MessageGuess(char letter) {
+    public GuessMessage(char letter) {
         validate(letter);
         this.letter = letter;
     }
@@ -23,11 +23,11 @@ public class MessageGuess {
     }
 
     /**
-     * Parse un message GUESS (deux lignes) et retourne un MessageGuess.
+     * Parse un message GUESS (deux lignes) et retourne un GuessMessage.
      * Lance IllegalArgumentException si le message est mal formé.
      */
 
-    public static MessageGuess parse(String message) {
+    public static GuessMessage parse(String message) {
         if (message == null) {
             throw new IllegalArgumentException("Message nul");
         }
@@ -47,7 +47,7 @@ public class MessageGuess {
         }
 
         char letter = letterPart.charAt(0);
-        return new MessageGuess(letter);
+        return new GuessMessage(letter);
     }
 
     /**
@@ -64,7 +64,7 @@ public class MessageGuess {
 
     @Override
     public String toString() {
-        return "MessageGuess[letter=" + letter + "]";
+        return "GuessMessage[letter=" + letter + "]";
     }
 
     /** Petit test/demo en ligne de commande.
@@ -79,7 +79,7 @@ public class MessageGuess {
         for (String s : samples) {
             System.out.println("Input: " + s);
             try {
-                MessageGuess m = MessageGuess.parse(s);
+                GuessMessage m = GuessMessage.parse(s);
                 System.out.println(" Parsed: " + m);
                 System.out.println(" Serialized:\n" + m.serialize());
             } catch (IllegalArgumentException e) {

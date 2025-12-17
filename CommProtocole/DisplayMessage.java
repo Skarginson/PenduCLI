@@ -15,7 +15,7 @@
  * Chaque diffusion utilise une nouvelle connexion TCP. 
  */
 
-public class MessageDisplay {
+public class DisplayMessage {
     private final String maskedWord;
     private final String proposedLetters;
     private final int errorCount;
@@ -25,7 +25,7 @@ public class MessageDisplay {
         PLAYING, WIN, LOSE
     }
 
-    public MessageDisplay(String maskedWord, String proposedLetters, int errorCount, GameState gameState) {
+    public DisplayMessage(String maskedWord, String proposedLetters, int errorCount, GameState gameState) {
         validate(maskedWord, proposedLetters, errorCount, gameState);
         this.maskedWord = maskedWord;
         this.proposedLetters = proposedLetters;
@@ -49,9 +49,9 @@ public class MessageDisplay {
     }
 
     /**
-     * Parse un message DISPLAY (5 lignes) et retourne un MessageDisplay.
+     * Parse un message DISPLAY (5 lignes) et retourne un DisplayMessage.
      */
-    public static MessageDisplay parse(String message) {
+    public static DisplayMessage parse(String message) {
         if (message == null) {
             throw new IllegalArgumentException("Message nul");
         }
@@ -89,7 +89,7 @@ public class MessageDisplay {
             throw new IllegalArgumentException("État du jeu invalide: " + stateStr, e);
         }
 
-        return new MessageDisplay(maskedWord, proposedLetters, errorCount, gameState);
+        return new DisplayMessage(maskedWord, proposedLetters, errorCount, gameState);
     }
 
     /**
@@ -117,7 +117,7 @@ public class MessageDisplay {
 
     @Override
     public String toString() {
-        return "MessageDisplay[masked=" + maskedWord + ", proposed=" + proposedLetters
+        return "DisplayMessage[masked=" + maskedWord + ", proposed=" + proposedLetters
                 + ", errors=" + errorCount + ", state=" + gameState + "]";
     }
 
@@ -126,7 +126,7 @@ public class MessageDisplay {
         String sample = "DISPLAY\n_ _ a _ _\na e\n2\nPLAYING\n";
         System.out.println("Sample message:\n" + sample);
         try {
-            MessageDisplay m = MessageDisplay.parse(sample);
+            DisplayMessage m = DisplayMessage.parse(sample);
             System.out.println("Parsed: " + m);
             System.out.println("Serialized:\n" + m.serialize());
         } catch (IllegalArgumentException e) {
@@ -137,7 +137,7 @@ public class MessageDisplay {
         System.out.println("\n--- Test WIN state ---");
         String winSample = "DISPLAY\na b c\na b c\n0\nWIN\n";
         try {
-            MessageDisplay m = MessageDisplay.parse(winSample);
+            DisplayMessage m = DisplayMessage.parse(winSample);
             System.out.println("Parsed: " + m);
         } catch (IllegalArgumentException e) {
             System.err.println("Erreur: " + e.getMessage());
