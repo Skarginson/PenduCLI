@@ -1,5 +1,3 @@
-package utils;
-
 public class GameState {
 
     public enum Status {
@@ -16,9 +14,19 @@ public class GameState {
 
     public GameState(String secretWord) {
         this.secretWord = secretWord;
+        
+        // Afficher la première et dernière lettre, ainsi que toutes leurs itérations
+        char firstLetter = secretWord.charAt(0);
+        char lastLetter = secretWord.charAt(secretWord.length() - 1);
+        
         StringBuilder sb = new StringBuilder(secretWord.length());
         for (int i = 0; i < secretWord.length(); i++) {
-            sb.append('_');
+            char current = secretWord.charAt(i);
+            if (current == firstLetter || current == lastLetter) {
+                sb.append(current);
+            } else {
+                sb.append('_');
+            }
         }
         this.maskedWord = sb.toString();
         this.lettersProposed = "";
