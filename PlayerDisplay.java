@@ -3,8 +3,6 @@ import java.net.Socket;
 
 public class PlayerDisplay {
 
-    private static GameState gameState;
-
     public static void main(String[] args) {
 
         // Etape 1 : Port d'écoute en argument qui doit être différent de 2025 + vérification. 
@@ -32,13 +30,41 @@ public class PlayerDisplay {
                 try (Socket clientSocket = serverSocket.accept();
                      BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
 
-                    String message = in.readLine();
-                    if (message != null) {
-                        System.out.println("Message reçu du GameMaster : " + message);
+                    // Lire la première ligne et vérifier qu'elle est DISPLAY
+                    String firstLine = in.readLine();
+                    if (firstLine == null || !firstLine.equals("DISPLAY")) {
+                        System.err.println("Erreur : première ligne doit être DISPLAY");
+                        continue;
                     }
 
-                    if (gameState != null && (gameState.getStatus() == GameState.Status.WIN || gameState.getStatus() == GameState.Status.LOSE)) {
-                        System.out.println("Fin du programme PlayerDisplay.");
+                    // Lire exactement 4 lignes supplémentaires
+                    String maskedWord = in.readLine(); 
+                    String lettersProposed = in.readLine();
+                    String errorsStr = in.readLine();
+                    String statusStr = in.readLine();
+
+                    if (maskedWord == null || lettersProposed == null || errorsStr == null || statusStr == null) {
+                        System.err.println("Erreur : impossible de lire les 4 lignes du message");
+                        continue;
+                    }
+
+                    // Afficher l'état du jeu en console
+                    System.out.println("=== État du jeu ===");
+                    System.out.println("Mot masqué : " + maskedWord);
+                    System.out.println("Lettres proposées : " + lettersProposed);
+                    System.out.println("Erreurs : " + errorsStr);
+                    System.out.println("Statut : " + statusStr);
+                    System.out.println("==================");
+
+                    // Vérifier si le jeu est terminé, annoncer le résultat et terminer le programme. 
+                    if (statusStr.equals("WIN")) {
+                        System.out.println("Partie gagnée, félicitations ! ");
+                        System.out.println("Fin du PlayerDisplay.");
+                        System.exit(0);
+                    }
+                    if (statusStr.equals("LOSE")) {
+                        System.out.println("Partie perdue, dommage ! ");
+                        System.out.println("Fin du PlayerDisplay.");
                         System.exit(0);
                     }
 
