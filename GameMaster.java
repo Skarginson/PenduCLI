@@ -1,4 +1,5 @@
 import java.io.*;
+import java.net.Socket;
 
 public class GameMaster {
 
@@ -20,52 +21,55 @@ public class GameMaster {
         try (java.net.ServerSocket serverSocket = new java.net.ServerSocket(2025)) {
             System.out.println("PlayerDisplay en attente de messages sur le port 2025");
 
-            // while (true) {
-            //     try (Socket clientSocket = serverSocket.accept();
-            //          BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
+            while (true) {
+                try (Socket clientSocket = serverSocket.accept();
+                     BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
 
-            //         // Lire la première ligne et vérifier qu'elle est DISPLAY
-            //         String firstLine = in.readLine();
-            //         if (firstLine == null || !firstLine.equals("DISPLAY")) {
-            //             System.err.println("Erreur : première ligne doit être DISPLAY");
-            //             continue;
-            //         }
+                    // Lire la première ligne et vérifier qu'elle est HELLO OU GUESS
+                    String firstLine = in.readLine();
+                    if (firstLine == null || (!firstLine.equals("HELLO") && !firstLine.equals("GUESS"))) {
+                        System.err.println("Erreur : première ligne doit être HELLO ou GUESS");
+                        continue; 
+                    }
 
-            //         // Lire exactement 4 lignes supplémentaires
-            //         String maskedWord = in.readLine(); 
-            //         String lettersProposed = in.readLine();
-            //         String errorsStr = in.readLine();
-            //         String statusStr = in.readLine();
+                    if (firstLine.equals("HELLO")) {
+                        String ipLine = in.readLine();
+                        String portLine = in.readLine();
 
-            //         if (maskedWord == null || lettersProposed == null || errorsStr == null || statusStr == null) {
-            //             System.err.println("Erreur : impossible de lire les 4 lignes du message");
-            //             continue;
-            //         }
+                        if (ipLine == null) {
+                            System.err.println("Erreur : impossible de lire la ligne IP du message HELLO");
+                            continue;
+                        }
+                        if (portLine == null) {
+                            System.err.println("Erreur : impossible de lire la ligne Port du message HELLO");
+                            continue;
+                        }
+                        
+                        String helloMessageStr = String.format("HELLO%n%s%n%s%n", ipLine, portLine);
+                        try {
+                            HelloMessage helloMessage = HelloMessage.parse(helloMessageStr);
+                            System.out.println("Reçu HELLO de " + helloMessageStr.replaceAll("\\R", " | "));
+                        } catch (IllegalArgumentException e) {
+                            System.err.println("Erreur lors du parsing du message HELLO : " + e.getMessage());
+                        }
+                    }
 
-            //         // Afficher l'état du jeu en console
-            //         System.out.println("=== État du jeu ===");
-            //         System.out.println("Mot masqué : " + maskedWord);
-            //         System.out.println("Lettres proposées : " + lettersProposed);
-            //         System.out.println("Erreurs : " + errorsStr);
-            //         System.out.println("Statut : " + statusStr);
-            //         System.out.println("==================");
+                    if (firstLine.equals("GUESS")) {
+                        String letterline = in.readLine();
+                        if (letterline == null) {
+                            System.err.println("Erreur : impossible de lire la ligne Lettre du message GUESS");
+                        }
+                    try {
+                        System.out.println("Reçu GUESS de " + letterline);
+                    } catch (Exception e) {
+                        System.err.println("Erreur lors du parsing du message GUESS : " + e.getMessage());
+                    }
+                    }
 
-            //         // Vérifier si le jeu est terminé, annoncer le résultat et terminer le programme. 
-            //         if (statusStr.equals("WIN")) {
-            //             System.out.println("Partie gagnée, félicitations ! ");
-            //             System.out.println("Fin du PlayerDisplay.");
-            //             System.exit(0);
-            //         }
-            //         if (statusStr.equals("LOSE")) {
-            //             System.out.println("Partie perdue, dommage ! ");
-            //             System.out.println("Fin du PlayerDisplay.");
-            //             System.exit(0);
-            //         }
-
-            //     } catch (IOException e) {
-            //         System.err.println("Erreur lors de la réception du message : " + e.getMessage());
-            //     }
-            // }
+                } catch (IOException e) {
+                    System.err.println("Erreur lors de la réception du message : " + e.getMessage());
+                }
+}
 
         } catch (IOException e) {
             System.err.println("Erreur lors de la création du ServerSocket : " + e.getMessage());
