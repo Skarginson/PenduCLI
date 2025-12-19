@@ -66,27 +66,4 @@ public class GuessMessage {
     public String toString() {
         return "GuessMessage[letter=" + letter + "]";
     }
-
-    /** Petit test/demo en ligne de commande.
-    public static void main(String[] args) {
-        String[] samples = {
-            "GUESS \n a",
-            "GUESS \n z",
-            "GUESS \n 1",
-            "BADMESSAGE \n x"
-        };
-
-        for (String s : samples) {
-            System.out.println("Input: " + s);
-            try {
-                GuessMessage m = GuessMessage.parse(s);
-                System.out.println(" Parsed: " + m);
-                System.out.println(" Serialized:\n" + m.serialize());
-            } catch (IllegalArgumentException e) {
-                System.out.println(" Error: " + e.getMessage());
-            }
-            System.out.println();
-        }
-    }
-     */
 }

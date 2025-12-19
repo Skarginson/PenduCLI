@@ -86,20 +86,6 @@ public class HelloMessage {
 	public String toString() {
 		return "HelloMessage[ip=" + ip + ", port=" + port + "]";
 	}
-
-    // Méthode de test
-    
-	public static void main(String[] args) {
-		String sample = "HELLO\n127.0.0.1\n4040\n";
-		System.out.println("Sample message:\n" + sample);
-		try {
-			HelloMessage m = HelloMessage.parse(sample);
-			System.out.println("Parsed: " + m);
-			System.out.println("Serialized:\n" + m.serialize());
-		} catch (IllegalArgumentException e) {
-			System.err.println("Erreur: " + e.getMessage());
-		}
-	}
 }
 
 

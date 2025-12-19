@@ -120,29 +120,5 @@ public class DisplayMessage {
         return "DisplayMessage[masked=" + maskedWord + ", proposed=" + proposedLetters
                 + ", errors=" + errorCount + ", state=" + gameState + "]";
     }
-
-    /** Petit test/demo en ligne de commande.
-    public static void main(String[] args) {
-        String sample = "DISPLAY\n_ _ a _ _\na e\n2\nPLAYING\n";
-        System.out.println("Sample message:\n" + sample);
-        try {
-            DisplayMessage m = DisplayMessage.parse(sample);
-            System.out.println("Parsed: " + m);
-            System.out.println("Serialized:\n" + m.serialize());
-        } catch (IllegalArgumentException e) {
-            System.err.println("Erreur: " + e.getMessage());
-        }
-
-        // Test WIN state
-        System.out.println("\n--- Test WIN state ---");
-        String winSample = "DISPLAY\na b c\na b c\n0\nWIN\n";
-        try {
-            DisplayMessage m = DisplayMessage.parse(winSample);
-            System.out.println("Parsed: " + m);
-        } catch (IllegalArgumentException e) {
-            System.err.println("Erreur: " + e.getMessage());
-        }
-    }
-     */
 }
 
