@@ -1,5 +1,7 @@
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameMaster {
 
@@ -39,7 +41,7 @@ public class GameMaster {
                     switch (firstLine) {
                         case "HELLO" -> handleHello(in, knownDisplays, gameState);
                         case "GUESS" -> {
-                            handleGuess(in, gameState, knownDisplays);
+                            handleGuess(in, clientSocket, gameState, knownDisplays);
                             
                             // Terminer proprement si le jeu est fini
                             if (gameState.isFinished()) {
@@ -78,18 +80,28 @@ public class GameMaster {
             String helloMessageStr = String.format("HELLO%n%s%n%s%n", ipLine, portLine);
             HelloMessage helloMessage = HelloMessage.parse(helloMessageStr);
             
-            knownDisplays.addDisplay(helloMessage.getIp(), helloMessage.getPort());
-            System.out.println("Enregistré PlayerDisplay : " + helloMessage.getIp() + ":" + helloMessage.getPort());
-            
-            // Envoyer l'état actuel du jeu au nouveau PlayerDisplay
-            sendDisplayToClient(helloMessage.getIp(), helloMessage.getPort(), gameState);
+            boolean added = knownDisplays.addDisplay(helloMessage.getIp(), helloMessage.getPort());
+            if (added) {
+                System.out.println("Enregistré PlayerDisplay : " + helloMessage.getIp() + ":" + helloMessage.getPort());
+                // Envoyer l'état actuel du jeu au nouveau PlayerDisplay
+                sendDisplayToClient(helloMessage.getIp(), helloMessage.getPort(), gameState);
+            } else {
+                System.out.println("PlayerDisplay déjà enregistré : " + helloMessage.getIp() + ":" + helloMessage.getPort());
+            }
 
         } catch (IllegalArgumentException e) {
             System.err.println("Erreur lors du parsing du message HELLO : " + e.getMessage());
         }
     }
 
-    private static void handleGuess(BufferedReader in, GameState gameState, KnownDisplays knownDisplays) throws IOException {
+    private static void handleGuess(BufferedReader in, Socket clientSocket, GameState gameState, KnownDisplays knownDisplays) throws IOException {
+        // Vérifier que l'IP source est un joueur enregistré
+        String clientIp = clientSocket.getInetAddress().getHostAddress();
+        if (!knownDisplays.isKnownIp(clientIp)) {
+            System.err.println("Erreur : GUESS rejeté - IP non enregistrée : " + clientIp);
+            return;
+        }
+
         try {
             String letterLine = in.readLine();
 
@@ -102,7 +114,7 @@ public class GameMaster {
             GuessMessage guessMessage = GuessMessage.parse(guessMessageStr);
             
             gameState.applyGuess(guessMessage.getLetter());
-            System.out.println("Reçu GUESS : " + guessMessage.getLetter());
+            System.out.println("Reçu GUESS de " + clientIp + " : " + guessMessage.getLetter());
             
             // Envoyer l'état mis à jour à tous les PlayerDisplay
             broadcastDisplayToAllClients(knownDisplays, gameState);
@@ -113,12 +125,24 @@ public class GameMaster {
     }
 
     private static void broadcastDisplayToAllClients(KnownDisplays knownDisplays, GameState gameState) {
-        for (KnownDisplays.DisplayInfo display : knownDisplays.getDisplays()) {
-            sendDisplayToClient(display.ip, display.port, gameState);
+        // Copie de la liste pour éviter ConcurrentModificationException
+        List<KnownDisplays.DisplayInfo> displaysCopy = new ArrayList<>(knownDisplays.getDisplays());
+        
+        for (KnownDisplays.DisplayInfo display : displaysCopy) {
+            boolean success = sendDisplayToClient(display.ip, display.port, gameState);
+            if (!success) {
+                // Retirer le display déconnecté de la liste
+                knownDisplays.removeDisplay(display.ip, display.port);
+                System.out.println("PlayerDisplay retiré (déconnecté) : " + display.ip + ":" + display.port);
+            }
         }
     }
 
-    private static void sendDisplayToClient(String ip, int port, GameState gameState) {
+    /**
+     * Envoie l'état du jeu à un PlayerDisplay.
+     * @return true si envoyé avec succès, false si échec (display déconnecté)
+     */
+    private static boolean sendDisplayToClient(String ip, int port, GameState gameState) {
         try (Socket socket = new Socket(ip, port);
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
 
@@ -132,9 +156,11 @@ public class GameMaster {
 
             out.print(displayMessage.serialize());
             out.flush();
+            return true;
 
         } catch (IOException e) {
             System.err.println("Erreur lors de l'envoi de DISPLAY à " + ip + ":" + port + " - " + e.getMessage());
+            return false;
         }
     }
 }
