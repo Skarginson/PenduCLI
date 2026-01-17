@@ -47,8 +47,6 @@ public class PlayerGuesser {
                     System.err.println("Erreur lors de l'envoi du message GUESS.");
                 }
 
-                // Étape 6 — Si succès → retourner à l’étape 3
-                // rien de particulier à faire ici
 
             } catch (IOException e) {
                 System.err.println("Erreur lecture STDIN : " + e.getMessage());

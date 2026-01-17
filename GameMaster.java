@@ -114,7 +114,6 @@ public class GameMaster {
             GuessMessage guessMessage = GuessMessage.parse(guessMessageStr);
             
             gameState.applyGuess(guessMessage.getLetter());
-            System.out.println("Reçu GUESS de " + clientIp + " : " + guessMessage.getLetter());
             
             // Envoyer l'état mis à jour à tous les PlayerDisplay
             broadcastDisplayToAllClients(knownDisplays, gameState);
